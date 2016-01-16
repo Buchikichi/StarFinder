@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -75,14 +76,24 @@ public final class StarFinderMain extends JFrame implements ActionListener {
 				StarFinderMain.this.mouseDragged(e);
 			}
 		});
+		addMouseWheelListener(new MouseAdapter() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				StarFinderMain.this.mouseWheelMoved(e);
+			}
+		});
 		this.timer.setActionCommand(TIMER_CMD);
 	}
 
 	protected void mousePressed(MouseEvent e) {
-		this.dx = 0;
-		this.pressedPoint = e.getPoint();
-		// Space.this.mVisibleSv = Space.this.visibleClass;
-		// Space.this.visibleClass = 500L;
+		int button = e.getButton();
+
+		if (button == MouseEvent.BUTTON1) {
+			this.dx = 0;
+			this.pressedPoint = e.getPoint();
+		} else if (button == MouseEvent.BUTTON3) {
+			this.space.toggleConstellation();
+		}
 	}
 
 	/**
@@ -95,15 +106,27 @@ public final class StarFinderMain extends JFrame implements ActionListener {
 	}
 
 	protected void mouseDragged(MouseEvent e) {
-		int diff = e.getX() - this.pressedPoint.x;
+		int diffX = this.pressedPoint.x - e.getX();
+		int diffY = this.pressedPoint.y - e.getY();
 
-		if (Math.abs(diff) < 30) {
-			this.dx = diff * 5;
+		if (Math.abs(diffX) < 30) {
+			this.dx = diffX * 5;
 		}
 		if (this.dx != 0 && !this.timer.isRunning()) {
 			this.timer.start();
 		}
+		if (Math.abs(diffY) < 30) {
+			this.space.rotateV(diffY / 5);
+			repaint();
+		}
 		this.pressedPoint = e.getPoint();
+	}
+
+	protected void mouseWheelMoved(MouseWheelEvent e) {
+		int d = -e.getWheelRotation() * 10;
+
+		this.space.addToVisibleClass(d);
+		repaint();
 	}
 
 	@Override
@@ -114,13 +137,13 @@ public final class StarFinderMain extends JFrame implements ActionListener {
 			int sign = this.dx < 0 ? -1 : 1;
 			int step = Math.min(Math.abs(this.dx), 1);
 
-			this.dx -= sign * step;
 			if (this.dx == 0) {
 				this.timer.stop();
 			} else {
-				this.space.rotate(this.dx);
+				this.space.rotateH(this.dx);
 				repaint();
 			}
+			this.dx -= sign * step;
 		}
 	}
 

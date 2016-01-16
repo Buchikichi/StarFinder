@@ -7,45 +7,45 @@ import java.awt.Color;
  * @author Hidetaka Sasai
  */
 public final class Star {
-	/** 緯度(↑↓). */
-	private final long latitude;
-	/** 経度(←→). */
-	private final long longitude;
+	/** 赤経(←→). */
+	private final double raDeg;
+	/** 赤緯(↑↓). */
+	private final double decDeg;
 	/** 等級. */
-	private final long v;
+	private final int v;
 	/** 色. */
 	private final Color color;
 
 	/**
 	 * インスタンスを生成.
-	 * @param latitude 緯度
-	 * @param longigude 経度
+	 * @param ra 赤経
+	 * @param dec 赤緯
 	 * @param v 等級
 	 * @param color 色
 	 */
-	public Star(long latitude, long longigude, long v, Color color) {
-		this.latitude = latitude;
-		this.longitude = longigude;
+	public Star(double ra, double dec, int v, Color color) {
+		this.decDeg = dec;
+		this.raDeg = ra;
 		this.v = v;
 		this.color = color;
 	}
 
 	/**
-	 * @return the latitude
-	 */
-	public long getLatitude() {
-		return this.latitude;
-	}
-	/**
 	 * @return the longitude
 	 */
-	public long getLongitude() {
-		return this.longitude;
+	public double getRaDeg() {
+		return this.raDeg;
+	}
+	/**
+	 * @return the latitude
+	 */
+	public double getDecDeg() {
+		return this.decDeg;
 	}
 	/**
 	 * @return the v
 	 */
-	public long getV() {
+	public int getV() {
 		return this.v;
 	}
 	/**
