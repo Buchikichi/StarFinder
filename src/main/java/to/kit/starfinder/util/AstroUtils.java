@@ -10,6 +10,8 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @author Hidetaka Sasai
  */
 public final class AstroUtils {
+	private static final BigDecimal PI = new BigDecimal(Math.PI);
+	private static final BigDecimal B180 = new BigDecimal(180);
 	private static final BigDecimal B240 = new BigDecimal(240);
 	private static final BigDecimal B3600 = new BigDecimal(3600);
 	private static final int MAX_DEG = 360;
@@ -43,6 +45,24 @@ public final class AstroUtils {
 			val = val.negate();
 		}
 		return val.divide(B3600, 8, BigDecimal.ROUND_HALF_UP).add(new BigDecimal(hh));
+	}
+
+	/**
+	 * Convert RA to Ra radian.
+	 * @param ra
+	 * @return radian
+	 */
+	public static BigDecimal toRaRad(final String ra) {
+		return toRaDeg(ra).multiply(PI).divide(B180, 8, BigDecimal.ROUND_HALF_UP);
+	}
+
+	/**
+	 * Convert DEC to DEC radian.
+	 * @param dec
+	 * @return radian
+	 */
+	public static BigDecimal toDecRad(final String dec) {
+		return toDecDeg(dec).multiply(PI).divide(B180, 8, BigDecimal.ROUND_HALF_UP);
 	}
 
 	/**

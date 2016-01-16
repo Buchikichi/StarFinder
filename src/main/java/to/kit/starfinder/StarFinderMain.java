@@ -47,6 +47,8 @@ public final class StarFinderMain extends JFrame implements ActionListener {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setVisible(true);
 		initEvents();
+		this.space.rotateV(-34);
+		this.space.addToVisibleClass(700);
 	}
 
 	private void initEvents() {

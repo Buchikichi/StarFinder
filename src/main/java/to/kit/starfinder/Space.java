@@ -26,7 +26,9 @@ public final class Space {
 	private int center;
 	/** 回転. */
 	private double rotationH;
+	private double rotationRad;
 	private double latitude;
+	private double latRad;
 
 	/** 星座の線を表示. */
 	private boolean showConstellation = true;
@@ -40,18 +42,17 @@ public final class Space {
 	/**
 	 * 位置を変換.
 	 * @param ioZ
-	 * @param raDeg
+	 * @param ra
 	 * @param decDeg
 	 * @return 表示位置
 	 */
-	private Point convPos(long[] ioZ, final double raDeg, final double decDeg) {
+	private Point convPos(long[] ioZ, final double ra, final double decRad) {
 		Point pt = new Point(0, 0);
 		long wx = pt.x;
 		long wy = pt.y;
 		long wz = ioZ[0];
-		double raRad = (raDeg + this.rotationH) % 360 * Math.PI / 180.0;
-		double decRad = decDeg * Math.PI / 180.0;
-		double radX = (this.latitude * Math.PI) / 180.0;
+		double raRad = ra + this.rotationRad;
+		double radX = this.latRad;
 
 		pt.y = (int) (Math.cos(decRad) * wy - Math.sin(decRad) * wz);
 		ioZ[0] = (long) (Math.sin(decRad) * wy + Math.cos(decRad) * wz);
@@ -81,7 +82,7 @@ public final class Space {
 	private boolean drawStar(Graphics g, final Star star) {
 		boolean result = false;
 		long[] pz = { this.center };
-		Point pt = convPos(pz, star.getRaDeg(), star.getDecDeg());
+		Point pt = convPos(pz, star.getRa(), star.getDec());
 
 		if (0L < pz[0]) {
 			g.setColor(star.getColor());
@@ -103,11 +104,11 @@ public final class Space {
 				if (line.isBegin()) {
 					// moveTo
 					long[] pz = { this.center };
-					prev = convPos(pz, star.getRaDeg(), star.getDecDeg());
+					prev = convPos(pz, star.getRa(), star.getDec());
 				} else if (prev != null) {
 					// lineTo
 					long[] pz = { this.center };
-					Point pt = convPos(pz, star.getRaDeg(), star.getDecDeg());
+					Point pt = convPos(pz, star.getRa(), star.getDec());
 					if (0L < pz[0]) {
 						g.drawLine(prev.x, prev.y, pt.x, pt.y);
 					}
@@ -115,7 +116,7 @@ public final class Space {
 				}
 			}
 			long[] pz = { this.center };
-			Point pt = convPos(pz, constellation.getLongitude(), constellation.getLatitude());
+			Point pt = convPos(pz, constellation.getRa(), constellation.getDec());
 			if (0L < pz[0]) {
 				g.setColor(Color.GRAY);
 				g.drawString(constellation.getName(), pt.x, pt.y);
@@ -128,6 +129,8 @@ public final class Space {
 
 		g.setColor(Color.WHITE);
 		g.drawString("l:" + -this.latitude, -this.center, y);
+		y += 16;
+		g.drawString("r:" + this.rotationH, -this.center, y);
 		y += 16;
 		g.drawString("v:" + (this.visibleClass / 100.0), -this.center, y);
 		y += 16;
@@ -169,6 +172,7 @@ public final class Space {
 	public void rotateH(int dx) {
 		this.rotationH += dx / 8;
 		this.rotationH = AstroUtils.trimDegree(this.rotationH);
+		this.rotationRad = this.rotationH * Math.PI / 180.0;
 	}
 
 	/**
@@ -182,6 +186,7 @@ public final class Space {
 		} else if (90 < this.latitude) {
 			this.latitude = 90;
 		}
+		this.latRad = (this.latitude * Math.PI) / 180.0;
 	}
 
 	/**
@@ -207,16 +212,16 @@ public final class Space {
 	 */
 	public Space() {
 		SpaceLoader loader = new SpaceLoader();
+//		SpaceWriter writer = new SpaceWriter();
 
 		try {
 			loader.load();
+			this.stars = loader.getStars();
+			this.constList = loader.getConstellationList();
+//			writer.save(this.stars);
 		} catch (IOException e) {
 			// 基本的にありえない
 			e.printStackTrace();
 		}
-		this.latitude = -34.0;
-		this.stars = loader.getStars();
-		this.constList = loader.getConstellationList();
-		this.visibleClass = 700L;
 	}
 }

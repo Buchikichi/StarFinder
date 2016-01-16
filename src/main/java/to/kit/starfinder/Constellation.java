@@ -14,9 +14,9 @@ public final class Constellation implements Iterable<ConstLine> {
 	/** 星座の名前. */
 	private final String name;
 	/** Latitude(緯度). */
-	private int latitude;
+	private double dec;
 	/** Longitude(経度). */
-	private int longitude;
+	private double ra;
 	/** 星座を結ぶ線情報. */
 	private List<ConstLine> lineList = new ArrayList<>();
 
@@ -48,29 +48,29 @@ public final class Constellation implements Iterable<ConstLine> {
 	 * Latitude(緯度)を取得.
 	 * @return 緯度
 	 */
-	public int getLatitude() {
-		return this.latitude;
+	public double getDec() {
+		return this.dec;
 	}
 	/**
 	 * Latitude(緯度)を設定.
 	 * @param value 緯度
 	 */
-	public void setLatitude(final int value) {
-		this.latitude = value;
+	public void setDec(final double value) {
+		this.dec = value;
 	}
 	/**
 	 * Longitude(経度)を取得.
 	 * @return the longitude
 	 */
-	public int getLongitude() {
-		return this.longitude;
+	public double getRa() {
+		return this.ra;
 	}
 	/**
 	 * Longitude(経度)を設定.
 	 * @param value 経度
 	 */
-	public void setLongitude(final int value) {
-		this.longitude = value;
+	public void setRa(final double value) {
+		this.ra = value;
 	}
 
 	@Override

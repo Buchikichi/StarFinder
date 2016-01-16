@@ -45,12 +45,10 @@ public final class SpaceLoader {
 		List<Star> list = new ArrayList<>();
 
 		try (InputStream in = Star.class.getResourceAsStream(HIP_FILE);
-				BufferedReader r = new BufferedReader(new InputStreamReader(in))) {
-			for (;;) {
-				String line = r.readLine();
-				if (line == null) {
-					break;
-				}
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+			String line;
+
+			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("|") || line.startsWith("|ra")) {
 					continue;
 				}
@@ -60,12 +58,14 @@ public final class SpaceLoader {
 					continue;
 				}
 				String hip = elements[4].trim();
+				int id = NumberUtils.toInt(hip);
 				String spect = elements[3].trim();
-				BigDecimal ra = AstroUtils.toRaDeg(elements[1].trim());
-				BigDecimal dec = AstroUtils.toDecDeg(elements[2].trim());
+				BigDecimal ra = AstroUtils.toRaRad(elements[1].trim());
+				BigDecimal dec = AstroUtils.toDecRad(elements[2].trim());
 				int v = (int) (NumberUtils.toDouble(vmag) * 100);
 				Color c = AstroUtils.calcColor(spect, v);
-				Star star = new Star(ra.doubleValue(), dec.doubleValue(), v, c);
+				String spectType = 0 < spect.length() ? String.valueOf(spect.charAt(0)) : null;
+				Star star = new Star(id, ra.doubleValue(), dec.doubleValue(), v, c, spectType);
 
 				list.add(star);
 				this.hipMap.put(hip, star);
@@ -92,8 +92,8 @@ public final class SpaceLoader {
 
 				if (cons == null || !name.equals(cons.getName())) {
 					cons = new Constellation(name);
-					cons.setLongitude((int) s1.getRaDeg());
-					cons.setLatitude((int) s1.getDecDeg());
+					cons.setRa(s1.getRa());
+					cons.setDec(s1.getDec());
 					list.add(cons);
 				}
 				cons.add(true, s1);
@@ -128,12 +128,12 @@ public final class SpaceLoader {
 					String[] elements = line.split(",");
 					int hh = NumberUtils.toInt(elements[0]);
 					int mm = NumberUtils.toInt(elements[1]);
-					cons.setLongitude((int) ((hh * 60L + mm) / 4L));
+					cons.setRa((hh * 60L + mm) * Math.PI / 720.0);
 					phase++;
 					break;
 
 				case 1: // '\001'
-					cons.setLatitude(NumberUtils.toInt(line));
+					cons.setDec(NumberUtils.toDouble(line) * Math.PI / 180.0);
 					phase++;
 					break;
 
