@@ -13,10 +13,8 @@ import to.kit.starfinder.Constellation.ConstLine;
 public final class Constellation implements Iterable<ConstLine> {
 	/** 星座の名前. */
 	private final String name;
-	/** Latitude(緯度). */
-	private double dec;
-	/** Longitude(経度). */
-	private double ra;
+	/** 表示位置. */
+	private Star pos;
 	/** 星座を結ぶ線情報. */
 	private List<ConstLine> lineList = new ArrayList<>();
 
@@ -45,32 +43,18 @@ public final class Constellation implements Iterable<ConstLine> {
 		return this.name;
 	}
 	/**
-	 * Latitude(緯度)を取得.
-	 * @return 緯度
+	 * 表示位置を取得.
+	 * @return 表示位置
 	 */
-	public double getDec() {
-		return this.dec;
+	public Star getPos() {
+		return this.pos;
 	}
 	/**
-	 * Latitude(緯度)を設定.
-	 * @param value 緯度
+	 * 表示位置を設定.
+	 * @param value 表示位置
 	 */
-	public void setDec(final double value) {
-		this.dec = value;
-	}
-	/**
-	 * Longitude(経度)を取得.
-	 * @return the longitude
-	 */
-	public double getRa() {
-		return this.ra;
-	}
-	/**
-	 * Longitude(経度)を設定.
-	 * @param value 経度
-	 */
-	public void setRa(final double value) {
-		this.ra = value;
+	public void setPos(final Star value) {
+		this.pos = value;
 	}
 
 	@Override

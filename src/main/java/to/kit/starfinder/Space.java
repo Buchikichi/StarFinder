@@ -11,6 +11,7 @@ import java.util.List;
 
 import to.kit.starfinder.Constellation.ConstLine;
 import to.kit.starfinder.io.SpaceLoader;
+import to.kit.starfinder.io.SpaceWriter;
 import to.kit.starfinder.util.AstroUtils;
 
 /**
@@ -35,41 +36,36 @@ public final class Space {
 	/** 表示する星座のクラス. */
 	private long visibleClass;
 //	private long degreeY = 0L;
-	private long degreeZ = 0L;
+	private double radZ = 0;
 //	private long mVisibleSv;
 //	private boolean isLightMode = false;
 
 	/**
 	 * 位置を変換.
-	 * @param ioZ
 	 * @param ra
 	 * @param decDeg
 	 * @return 表示位置
 	 */
-	private Point convPos(long[] ioZ, final double ra, final double decRad) {
+	private Point convPos(final double ra, final double decRad) {
 		Point pt = new Point(0, 0);
-		long wx = pt.x;
-		long wy = pt.y;
-		long wz = ioZ[0];
 		double raRad = ra + this.rotationRad;
 		double radX = this.latRad;
+		int wz = this.center;
 
-		pt.y = (int) (Math.cos(decRad) * wy - Math.sin(decRad) * wz);
-		ioZ[0] = (long) (Math.sin(decRad) * wy + Math.cos(decRad) * wz);
-		wz = ioZ[0];
-		pt.x = (int) (Math.cos(raRad) * wx - Math.sin(raRad) * wz);
-		ioZ[0] = (long) (Math.sin(raRad) * wx + Math.cos(raRad) * wz);
-		wy = pt.y;
-		wz = ioZ[0];
+		int wy = (int) (-Math.sin(decRad) * wz);
+		wz = (int) (Math.cos(decRad) * wz);
+
+		int wx = (int) (-Math.sin(raRad) * wz);
+		wz = (int) (Math.cos(raRad) * wz);
+
 		pt.y = (int) (Math.cos(radX) * wy - Math.sin(radX) * wz);
-		ioZ[0] = (long) (Math.sin(radX) * wy + Math.cos(radX) * wz);
-		if (ioZ[0] < 0L) {
-			return pt;
+		wz = (int) (Math.sin(radX) * wy + Math.cos(radX) * wz);
+		if (wz < 0L) {
+			return null;
 		}
-		wx = pt.x;
 		wy = pt.y;
-		pt.x = (int) (Math.cos(this.degreeZ) * wx - Math.sin(this.degreeZ) * wy);
-		pt.y = (int) (Math.sin(this.degreeZ) * wx + Math.cos(this.degreeZ) * wy);
+		pt.x = (int) (Math.cos(this.radZ) * wx - Math.sin(this.radZ) * wy);
+		pt.y = (int) (Math.sin(this.radZ) * wx + Math.cos(this.radZ) * wy);
 		return pt;
 	}
 
@@ -81,10 +77,9 @@ public final class Space {
 	 */
 	private boolean drawStar(Graphics g, final Star star) {
 		boolean result = false;
-		long[] pz = { this.center };
-		Point pt = convPos(pz, star.getRa(), star.getDec());
+		Point pt = convPos(star.getRa(), star.getDec());
 
-		if (0L < pz[0]) {
+		if (pt != null) {
 			g.setColor(star.getColor());
 			g.drawLine(pt.x, pt.y, pt.x, pt.y);
 			result = true;
@@ -101,23 +96,22 @@ public final class Space {
 			g.setColor(constellationColor);
 			for (ConstLine line : constellation) {
 				Star star = line.getStar();
+
 				if (line.isBegin()) {
 					// moveTo
-					long[] pz = { this.center };
-					prev = convPos(pz, star.getRa(), star.getDec());
+					prev = convPos(star.getRa(), star.getDec());
 				} else if (prev != null) {
 					// lineTo
-					long[] pz = { this.center };
-					Point pt = convPos(pz, star.getRa(), star.getDec());
-					if (0L < pz[0]) {
+					Point pt = convPos(star.getRa(), star.getDec());
+					if (pt != null) {
 						g.drawLine(prev.x, prev.y, pt.x, pt.y);
 					}
 					prev = pt;
 				}
 			}
-			long[] pz = { this.center };
-			Point pt = convPos(pz, constellation.getRa(), constellation.getDec());
-			if (0L < pz[0]) {
+			Star star = constellation.getPos();
+			Point pt = convPos(star.getRa(), star.getDec());
+			if (pt != null) {
 				g.setColor(Color.GRAY);
 				g.drawString(constellation.getName(), pt.x, pt.y);
 			}
@@ -212,13 +206,14 @@ public final class Space {
 	 */
 	public Space() {
 		SpaceLoader loader = new SpaceLoader();
-//		SpaceWriter writer = new SpaceWriter();
+		SpaceWriter writer = new SpaceWriter();
 
 		try {
 			loader.load();
 			this.stars = loader.getStars();
 			this.constList = loader.getConstellationList();
 //			writer.save(this.stars);
+			writer.saveConstellation(this.constList);
 		} catch (IOException e) {
 			// 基本的にありえない
 			e.printStackTrace();

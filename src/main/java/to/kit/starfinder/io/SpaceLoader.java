@@ -92,8 +92,7 @@ public final class SpaceLoader {
 
 				if (cons == null || !name.equals(cons.getName())) {
 					cons = new Constellation(name);
-					cons.setRa(s1.getRa());
-					cons.setDec(s1.getDec());
+					cons.setPos(s1);
 					list.add(cons);
 				}
 				cons.add(true, s1);
@@ -115,9 +114,9 @@ public final class SpaceLoader {
 					continue;
 				}
 				if (line.startsWith("#")) {
-					cons = new Constellation(line.substring(1));
-					list.add(cons);
-					phase = 0;
+//					cons = new Constellation(line.substring(1));
+//					list.add(cons);
+//					phase = 0;
 					continue;
 				}
 				if (cons == null) {
@@ -125,16 +124,16 @@ public final class SpaceLoader {
 				}
 				switch (phase) {
 				case 0: // '\0'
-					String[] elements = line.split(",");
-					int hh = NumberUtils.toInt(elements[0]);
-					int mm = NumberUtils.toInt(elements[1]);
-					cons.setRa((hh * 60L + mm) * Math.PI / 720.0);
-					phase++;
+//					String[] elements = line.split(",");
+//					int hh = NumberUtils.toInt(elements[0]);
+//					int mm = NumberUtils.toInt(elements[1]);
+//					cons.setRa((hh * 60L + mm) * Math.PI / 720.0);
+//					phase++;
 					break;
 
 				case 1: // '\001'
-					cons.setDec(NumberUtils.toDouble(line) * Math.PI / 180.0);
-					phase++;
+//					cons.setPos(NumberUtils.toDouble(line) * Math.PI / 180.0);
+//					phase++;
 					break;
 
 				default:
